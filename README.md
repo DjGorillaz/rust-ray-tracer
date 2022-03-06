@@ -1,2 +1,3 @@
 # rust-ray-tracer
-https://raytracing.github.io/books/RayTracingInOneWeekend.html
+
+Implementing [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
