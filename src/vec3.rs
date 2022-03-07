@@ -1,9 +1,8 @@
-use std::ops::{Add, Sub, Mul, Div};
+use std::ops::{Add, Div, Mul, Sub};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Vec3 {
     pub e: [f64; 3],
-    
 }
 
 pub type Point3 = Vec3;
@@ -11,7 +10,7 @@ pub type Color = Vec3;
 
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
-        Vec3{ e: [x, y, z] }
+        Vec3 { e: [x, y, z] }
     }
     pub fn x(&self) -> f64 {
         self.e[0]
@@ -93,7 +92,6 @@ fn y_test() {
     let v = Vec3::new(0.0, 99.9, 0.0);
     assert_eq!(v.y(), 99.9);
 }
-
 
 #[test]
 fn z_test() {
