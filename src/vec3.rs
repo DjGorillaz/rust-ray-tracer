@@ -145,3 +145,14 @@ fn div_test() {
     let f = 10_f64;
     assert_eq!(v / f, Vec3::new(0.1, -0.1, 0.00001));
 }
+
+// Utility functions
+pub fn unit_vector(v: Vec3) -> Vec3 {
+    v / v.length()
+}
+
+#[test]
+fn unit_vector_test() {
+    let v = Vec3::new(3.0, 4.0, 0.0);
+    assert_eq!(unit_vector(v), Vec3::new(0.6, 0.8, 0.0));
+}
