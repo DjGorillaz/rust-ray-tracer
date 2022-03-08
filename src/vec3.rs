@@ -151,8 +151,19 @@ pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
 }
 
+pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
+    u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
+}
+
 #[test]
 fn unit_vector_test() {
     let v = Vec3::new(3.0, 4.0, 0.0);
     assert_eq!(unit_vector(v), Vec3::new(0.6, 0.8, 0.0));
+}
+
+#[test]
+fn dot_test() {
+    let u = Vec3::new(1.0, 1.0, 1.0);
+    let v = Vec3::new(2.0, 2.0, 2.0);
+    assert_eq!(dot(&u, &v), 6.0);
 }
