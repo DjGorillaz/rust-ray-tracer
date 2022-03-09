@@ -7,15 +7,15 @@ use vec3::*;
 
 fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64 {
     let oc = r.origin() - center;
-    let a = dot(&r.direction(), &r.direction());
-    let b = 2.0 * dot(&r.direction(), &oc);
-    let c = dot(&oc, &oc) - radius.powf(2.0);
+    let a = r.direction().length_squared();
+    let half_b = dot(&r.direction(), &oc);
+    let c = oc.length_squared() - radius.powf(2.0);
 
-    let discriminant = b.powf(2.0) - 4.0 * a * c;
+    let discriminant = half_b.powf(2.0) - a * c;
     if discriminant < 0.0 {
         -1.0
     } else {
-        (-b - discriminant.sqrt()) / (2.0 * a)
+        (-half_b - discriminant.sqrt()) / a
     }
 }
 
