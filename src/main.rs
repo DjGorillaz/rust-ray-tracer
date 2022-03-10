@@ -1,35 +1,23 @@
+mod hittable;
 mod ray;
+mod sphere;
 mod vec3;
 
+use hittable::*;
 use image::ImageBuffer;
 use ray::Ray;
+use sphere::*;
+use std::{f64::INFINITY, rc::Rc};
 use vec3::*;
 
-fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64 {
-    let oc = r.origin() - center;
-    let a = r.direction().length_squared();
-    let half_b = dot(&r.direction(), &oc);
-    let c = oc.length_squared() - radius.powf(2.0);
-
-    let discriminant = half_b.powf(2.0) - a * c;
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (-half_b - discriminant.sqrt()) / a
-    }
-}
-
-fn ray_color(r: &Ray) -> Color {
-    let sphere_center = Point3::new(0.0, 0.0, -1.0);
-    let t = hit_sphere(sphere_center, 0.5, r);
-    if t > 0.0 {
-        let N = unit_vector(r.at(t) - Vec3::new(0.0, 0.0, -1.0));
-        return 0.5 * Color::new(N.x() + 1.0, N.y() + 1.0, N.z() + 1.0);
+fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
+    let mut rec = HitRecord::new();
+    if world.hit(r, 0.0, INFINITY, &mut rec) {
+        return 0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0));
     }
 
     let unit_direction = unit_vector(r.direction());
     let t = 0.5 * (unit_direction.y() + 1.0);
-
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
 
@@ -46,6 +34,13 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as u32;
+
+    // World
+    let mut world = HittableList { objects: vec![] };
+    let sphere = Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5));
+    let sphere2 = Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0));
+    world.add(sphere);
+    world.add(sphere2);
 
     // Camera
     let viewport_height = 2.0;
@@ -70,7 +65,7 @@ fn main() {
                 origin,
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, &world);
             let pixel = create_pixel(&pixel_color);
             img.put_pixel(i, j, pixel);
         }
