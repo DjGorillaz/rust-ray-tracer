@@ -38,9 +38,11 @@ fn main() {
     let mut world = HittableList { objects: vec![] };
     let sphere = Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5));
     let sphere2 = Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0));
+    let sphere3 = Rc::new(Sphere::new(Point3::new(-0.5, 0.0, -0.7), 0.2));
     world.add(sphere);
     world.add(sphere2);
-
+    world.add(sphere3);
+    
     // Camera
     let viewport_height = 2.0;
     let viewport_width = aspect_ratio * viewport_height;
