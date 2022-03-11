@@ -31,7 +31,7 @@ impl HitRecord {
 }
 
 pub trait Hittable {
-    fn hit(&self, r: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
+    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
 pub struct HittableList {
@@ -49,19 +49,17 @@ impl HittableList {
 }
 
 impl Hittable for HittableList {
-    fn hit(&self, r: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
-        let mut temp_rec = HitRecord::new();
-        let mut hit_anything = false;
+    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut closest_so_far = t_max;
+        let mut temp_record = None;
 
         for object in self.objects.iter() {
-            if object.hit(r, t_min, closest_so_far, &mut temp_rec) {
-                hit_anything = true;
+            if let Some(temp_rec) = object.hit(r, t_min, closest_so_far) {
                 closest_so_far = temp_rec.t;
-                *rec = temp_rec;
+                temp_record = Some(temp_rec);
             }
         }
 
-        hit_anything
+        temp_record
     }
 }

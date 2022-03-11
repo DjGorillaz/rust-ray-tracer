@@ -11,8 +11,7 @@ use std::{f64::INFINITY, rc::Rc};
 use vec3::*;
 
 fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
-    let mut rec = HitRecord::new();
-    if world.hit(r, 0.0, INFINITY, &mut rec) {
+    if let Some(rec) = world.hit(r, 0.0, INFINITY) {
         return 0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0));
     }
 
