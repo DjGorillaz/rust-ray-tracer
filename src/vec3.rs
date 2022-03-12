@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, Mul, Sub};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Vec3 {
@@ -78,6 +78,12 @@ impl Div<f64> for Vec3 {
         self.e[2] /= rhs;
 
         self
+    }
+}
+
+impl AddAssign for Vec3 {
+    fn add_assign(&mut self, other: Self) {
+        *self = *self + other
     }
 }
 
@@ -166,4 +172,13 @@ fn dot_test() {
     let u = Vec3::new(1.0, 1.0, 1.0);
     let v = Vec3::new(2.0, 2.0, 2.0);
     assert_eq!(dot(&u, &v), 6.0);
+}
+
+#[test]
+fn add_assign_test() {
+    let mut u = Vec3::new(1.0, 1.0, 1.0);
+    let v = Vec3::new(2.0, 2.0, 2.0);
+
+    u += v;
+    assert_eq!(u, Vec3::new(3.0, 3.0, 3.0));
 }
