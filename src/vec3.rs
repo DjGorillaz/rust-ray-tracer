@@ -1,5 +1,7 @@
 use std::ops::{Add, AddAssign, Div, Mul, Sub};
 
+use rand::Rng;
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Vec3 {
     pub e: [f64; 3],
@@ -25,9 +27,56 @@ impl Vec3 {
     pub fn length(&self) -> f64 {
         self.length_squared().sqrt()
     }
+
     pub fn length_squared(&self) -> f64 {
         return self.e[0].powf(2.0) + self.e[1].powf(2.0) + self.e[2].powf(2.0);
     }
+
+    pub fn random(min: f64, max: f64) -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Vec3::new(
+            rng.gen_range(min..max),
+            rng.gen_range(min..max),
+            rng.gen_range(min..max),
+        )
+    }
+
+    pub fn random_0_1() -> Vec3 {
+        Vec3::random(0.0, 1.1)
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Vec3::random(-1.0, 1.0);
+            if p.length_squared() >= 1.0 {
+                continue;
+            }
+            return p;
+        }
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        unit_vector(Vec3::random_in_unit_sphere())
+    }
+
+    pub fn random_in_hemishpere(normal: &Vec3) -> Vec3 {
+        let in_unit_sphere = Vec3::random_in_unit_sphere();
+        if dot(&in_unit_sphere, normal) > 0.0 {
+            // In the same hemisphere as the normal
+            return in_unit_sphere;
+        } else {
+            return -1.0 * in_unit_sphere;
+        }
+    }
+}
+
+// Utility functions
+pub fn unit_vector(v: Vec3) -> Vec3 {
+    v / v.length()
+}
+
+pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
+    u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
 }
 
 impl Add for Vec3 {
@@ -150,15 +199,6 @@ fn div_test() {
     let v = Vec3::new(1.0, -1.0, 0.0001);
     let f = 10_f64;
     assert_eq!(v / f, Vec3::new(0.1, -0.1, 0.00001));
-}
-
-// Utility functions
-pub fn unit_vector(v: Vec3) -> Vec3 {
-    v / v.length()
-}
-
-pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
-    u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
 }
 
 #[test]

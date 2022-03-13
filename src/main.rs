@@ -14,9 +14,15 @@ use ray::Ray;
 use sphere::*;
 use vec3::*;
 
-fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
-    if let Some(rec) = world.hit(r, 0.0, INFINITY) {
-        return 0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0));
+fn ray_color(r: &Ray, world: &dyn Hittable, depth: usize) -> Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered
+    if depth <= 0 {
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
+    if let Some(rec) = world.hit(r, 0.001, INFINITY) {
+        let target = rec.p + Vec3::random_in_hemishpere(&rec.normal);
+        return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world, depth - 1);
     }
 
     let unit_direction = unit_vector(r.direction());
@@ -39,11 +45,11 @@ fn create_pixel(pixel_color: &Color, samples_per_pixel: usize) -> image::Rgb<u8>
     let mut g = pixel_color.y();
     let mut b = pixel_color.z();
 
-    // Divide the color by the number of samples
+    // Divide the color by the number of samples and gamma-correct for gamma=2.0
     let scale = 1.0 / samples_per_pixel as f64;
-    r *= scale;
-    g *= scale;
-    b *= scale;
+    r = (r * scale).sqrt();
+    g = (g * scale).sqrt();
+    b = (b * scale).sqrt();
 
     image::Rgb([
         (256.0 * clamp(r, 0.0, 0.999)) as u8,
@@ -58,6 +64,7 @@ fn main() {
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel = 100;
+    let max_depth = 50;
 
     // World
     let mut world = HittableList { objects: vec![] };
@@ -65,7 +72,7 @@ fn main() {
     let sphere2 = Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0));
     world.add(sphere);
     world.add(sphere2);
-    
+
     // Camera
     let cam = Camera::new();
 
@@ -82,7 +89,7 @@ fn main() {
                     / (image_height - 1) as f64;
                 let r = cam.get_ray(u, v);
 
-                pixel_color += ray_color(&r, &world);
+                pixel_color += ray_color(&r, &world, max_depth);
             }
             let pixel = create_pixel(&pixel_color, samples_per_pixel);
             img.put_pixel(i, j, pixel);
