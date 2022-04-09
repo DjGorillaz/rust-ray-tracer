@@ -21,7 +21,9 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: usize) -> Color {
     }
 
     if let Some(rec) = world.hit(r, 0.001, INFINITY) {
-        let target = rec.p + Vec3::random_in_hemishpere(&rec.normal);
+        // let target = rec.p + rec.normal + Vec3::random_in_unit_sphere(); // lambertian approximation
+        // let target = rec.p + rec.normal + Vec3::random_unit_vector(); // true lambertian reflection
+        let target = rec.p + Vec3::random_in_hemishpere(&rec.normal); // alternative diffuse method
         return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world, depth - 1);
     }
 
