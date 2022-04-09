@@ -68,6 +68,11 @@ impl Vec3 {
             return -1.0 * in_unit_sphere;
         }
     }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        self.x().abs() < s && self.y().abs() < s && self.z().abs() < s
+    }
 }
 
 // Utility functions
@@ -235,4 +240,13 @@ fn add_assign_test() {
 
     u += v;
     assert_eq!(u, Vec3::new(3.0, 3.0, 3.0));
+}
+
+#[test]
+fn near_zero_test() {
+    let v1 = Vec3::new(1e-9, 1e-9, 1e-9);
+    let v2 = Vec3::new(1e-7, 1e-7, 1e-7);
+
+    assert_eq!(v1.near_zero(), true);
+    assert_eq!(v2.near_zero(), false);
 }

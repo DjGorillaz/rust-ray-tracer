@@ -1,20 +1,26 @@
+use super::material::*;
 use super::vec3::*;
 use super::Ray;
 use std::rc::Rc;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
+    pub material: Rc<dyn Material>,
     pub t: f64,
     pub front_face: bool,
 }
 
 impl HitRecord {
     pub fn new() -> HitRecord {
+        // TODO: use default()
         HitRecord {
-            p: Point3::new(0.0, 0.0, 0.0),
-            normal: Vec3::new(0.0, 0.0, 0.0),
+            p: Point3::default(),
+            normal: Vec3::default(),
+            material: Rc::new(Lambertian {
+                albedo: Color::default(),
+            }),
             t: 0.0,
             front_face: false,
         }
