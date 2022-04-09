@@ -119,6 +119,13 @@ impl Mul<Vec3> for f64 {
     }
 }
 
+impl Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        Vec3::new(self.x() * rhs.x(), self.y() * rhs.y(), self.z() * rhs.z())
+    }
+}
+
 impl Div<f64> for Vec3 {
     type Output = Self;
     fn div(mut self, rhs: f64) -> Self {
@@ -185,6 +192,13 @@ fn mul_test() {
     let v = Vec3::new(1.0, -1.0, 0.0001);
     let f = 10_f64;
     assert_eq!(v * f, Vec3::new(10.0, -10.0, 0.001));
+}
+
+#[test]
+fn mul_vector_test() {
+    let v = Vec3::new(1.0, -1.0, 0.1);
+    let u = Vec3::new(2.0, 3.0, -1.0);
+    assert_eq!(v * u, Vec3::new(2.0, -3.0, -0.1));
 }
 
 #[test]
