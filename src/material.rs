@@ -40,7 +40,11 @@ pub struct Metal {
 
 impl Metal {
     pub fn new(albedo: Color, fuzz: f64) -> Metal {
-        Metal {albedo, fuzz}
+        if fuzz > 1.0 {
+            Metal { albedo, fuzz: 1.0 }
+        } else {
+            Metal { albedo, fuzz }
+        }
     }
 
     fn reflect(&self, v: &Vec3, n: &Vec3) -> Vec3 {
