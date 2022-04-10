@@ -73,6 +73,18 @@ impl Vec3 {
         let s = 1e-8;
         self.x().abs() < s && self.y().abs() < s && self.z().abs() < s
     }
+
+    pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+        *v - 2.0 * dot(v, n) * (*n)
+    }
+
+    pub fn refract(uv: &Vec3, n: &Vec3, eta_over_eta_prime: f64) -> Vec3 {
+        let cos_theta = 1.0_f64.min(dot(&(-1.0 * *uv), n));
+        let r_out_perpendicular = eta_over_eta_prime * (*uv + cos_theta * *n);
+        let r_out_parallel = -((1.0 - r_out_perpendicular.length_squared()).abs().sqrt()) * *n;
+
+        r_out_parallel + r_out_perpendicular
+    }
 }
 
 // Utility functions
