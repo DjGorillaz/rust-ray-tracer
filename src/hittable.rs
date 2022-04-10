@@ -13,8 +13,7 @@ pub struct HitRecord {
 }
 
 impl HitRecord {
-    pub fn new() -> HitRecord {
-        // TODO: use default()
+    pub fn default() -> HitRecord {
         HitRecord {
             p: Point3::default(),
             normal: Vec3::default(),

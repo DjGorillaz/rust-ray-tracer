@@ -39,7 +39,7 @@ impl Hittable for Sphere {
         let roots = [first_root, second_root];
 
         if let Some(root) = roots.into_iter().find(|&x| t_min <= x && x <= t_max) {
-            let mut rec = HitRecord::new();
+            let mut rec = HitRecord::default();
             rec.t = root;
             rec.p = r.at(rec.t);
             let outward_normal = (rec.p - self.center) / self.radius;

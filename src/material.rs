@@ -2,13 +2,7 @@ use super::hittable::*;
 use super::ray::*;
 use super::vec3::*;
 pub trait Material {
-    fn scatter(
-        &self,
-        r_in: &Ray,
-        rec: &HitRecord,
-        attenuation: &mut Color,
-        scattered: &mut Ray,
-    ) -> bool;
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)>;
 }
 
 pub struct Lambertian {
@@ -16,22 +10,20 @@ pub struct Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(
-        &self,
-        r_in: &Ray,
-        rec: &HitRecord,
-        attenuation: &mut Color,
-        scattered: &mut Ray,
-    ) -> bool {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
+        // let target = rec.p + rec.normal + Vec3::random_in_unit_sphere(); // lambertian approximation
+        // let target = rec.p + rec.normal + Vec3::random_unit_vector(); // true lambertian reflection
+        // let target = rec.p + Vec3::random_in_hemishpere(&rec.normal); // alternative diffuse method
+
         let mut scatter_direction = rec.normal + Vec3::random_unit_vector();
 
         if scatter_direction.near_zero() {
             scatter_direction = rec.normal;
         }
 
-        *scattered = Ray::new(rec.p, scatter_direction);
-        *attenuation = self.albedo;
-        return true;
+        let scattered = Ray::new(rec.p, scatter_direction);
+        let attenuation = self.albedo;
+        Some((attenuation, scattered))
     }
 }
 
@@ -46,17 +38,16 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(
-        &self,
-        r_in: &Ray,
-        rec: &HitRecord,
-        attenuation: &mut Color,
-        scattered: &mut Ray,
-    ) -> bool {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
         let reflected = self.reflect(&unit_vector(r_in.direction()), &rec.normal);
-        *scattered = Ray::new(rec.p, reflected);
-        *attenuation = self.albedo;
 
-        dot(&scattered.direction(), &rec.normal) > 0.0
+        let scattered = Ray::new(rec.p, reflected);
+        let attenuation = self.albedo;
+
+        if dot(&scattered.direction(), &rec.normal) > 0.0 {
+            Some((attenuation, scattered))
+        } else {
+            None
+        }
     }
 }

@@ -24,17 +24,7 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: usize) -> Color {
     }
 
     if let Some(rec) = world.hit(r, 0.001, INFINITY) {
-        // let target = rec.p + rec.normal + Vec3::random_in_unit_sphere(); // lambertian approximation
-        // let target = rec.p + rec.normal + Vec3::random_unit_vector(); // true lambertian reflection
-        // let target = rec.p + Vec3::random_in_hemishpere(&rec.normal); // alternative diffuse method
-        // return 0.5 * ray_color(&Ray::new(rec.p, target - rec.p), world, depth - 1);
-
-        let mut attenuation = Color::default();
-        let mut scattered = Ray::default();
-        if rec
-            .material
-            .scatter(r, &rec, &mut attenuation, &mut scattered)
-        {
+        if let Some((attenuation, scattered)) = rec.material.scatter(r, &rec) {
             return attenuation * ray_color(&scattered, world, depth - 1);
         }
         return Color::new(0.0, 0.0, 0.0);
