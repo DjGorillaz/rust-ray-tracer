@@ -77,32 +77,38 @@ fn main() {
     let material_right = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.0));
 
     // World
-    let mut world = HittableList { objects: vec![] };
-    let sphere = Rc::new(Sphere::new(
+    let mut world = HittableList::default();
+    let mut spheres = vec![];
+
+    spheres.push(Rc::new(Sphere::new(
         Point3::new(0.0, 0.0, -1.0),
         0.5,
         material_center,
-    ));
-    let sphere2 = Rc::new(Sphere::new(
+    )));
+    spheres.push(Rc::new(Sphere::new(
         Point3::new(0.0, -100.5, -1.0),
         100.0,
         material_ground,
-    ));
-    let sphere3 = Rc::new(Sphere::new(
+    )));
+    spheres.push(Rc::new(Sphere::new(
         Point3::new(-1.0, 0.0, -1.0),
         0.5,
+        material_left.clone(),
+    )));
+    spheres.push(Rc::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        -0.4,
         material_left,
-    ));
-    let sphere4 = Rc::new(Sphere::new(
+    )));
+    spheres.push(Rc::new(Sphere::new(
         Point3::new(1.0, 0.0, -1.0),
         0.5,
         material_right,
-    ));
+    )));
 
-    world.add(sphere);
-    world.add(sphere2);
-    world.add(sphere3);
-    world.add(sphere4);
+    for sphere in spheres.iter() {
+        world.add(sphere.clone());
+    }
 
     // Camera
     let cam = Camera::new();
