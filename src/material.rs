@@ -19,10 +19,6 @@ impl Lambertian {
 
 impl Material for Lambertian {
     fn scatter(&self, _r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
-        // let target = rec.p + rec.normal + Vec3::random_in_unit_sphere(); // lambertian approximation
-        // let target = rec.p + rec.normal + Vec3::random_unit_vector(); // true lambertian reflection
-        // let target = rec.p + Vec3::random_in_hemishpere(&rec.normal); // alternative diffuse method
-
         let mut scatter_direction = rec.normal + Vec3::random_unit_vector();
 
         if scatter_direction.near_zero() {
