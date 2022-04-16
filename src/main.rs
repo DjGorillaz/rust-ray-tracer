@@ -74,23 +74,38 @@ fn main() {
     let samples_per_pixel = 100;
     let max_depth = 50;
 
-    let material_left = Rc::new(Lambertian::new(Color::new(0.0, 1.0, 0.0)));
-    let material_right = Rc::new(Lambertian::new(Color::new(1.0, 0.0, 0.0)));
+    let material_ground = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
+    let material_center = Rc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
+    let material_left = Rc::new(Dielectric::new(1.5));
+    let material_right = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.0));
 
     // World
     let mut world = HittableList::default();
     let mut spheres = vec![];
 
-    let R = (PI / 4.0).cos();
-
     spheres.push(Rc::new(Sphere::new(
-        Point3::new(-R, 0.0, -1.0),
-        R,
+        Point3::new(0.0, -100.5, -1.0),
+        100.0,
+        material_ground,
+    )));
+    spheres.push(Rc::new(Sphere::new(
+        Point3::new(0.0, 0.0, -1.0),
+        0.5,
+        material_center,
+    )));
+    spheres.push(Rc::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        0.5,
+        material_left.clone(),
+    )));
+    spheres.push(Rc::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        -0.45,
         material_left,
     )));
     spheres.push(Rc::new(Sphere::new(
-        Point3::new(R, 0.0, -1.0),
-        R,
+        Point3::new(1.0, 0.0, -1.0),
+        0.5,
         material_right,
     )));
 
@@ -99,7 +114,13 @@ fn main() {
     }
 
     // Camera
-    let cam = Camera::new(90.0, aspect_ratio);
+    let cam = Camera::new(
+        Point3::new(-2.0, 2.0, 1.0),
+        Point3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        20.0,
+        aspect_ratio,
+    );
 
     // Render
     let mut img = ImageBuffer::new(image_width, image_height);
