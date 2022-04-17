@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Div, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, Mul, Sub, Range};
 
 use rand::Rng;
 
@@ -32,18 +32,17 @@ impl Vec3 {
         return self.e[0].powf(2.0) + self.e[1].powf(2.0) + self.e[2].powf(2.0);
     }
 
-    pub fn random(min: f64, max: f64) -> Vec3 {
-        let mut rng = rand::thread_rng();
+    pub fn random(range: Range<f64>) -> Vec3 {
         Vec3::new(
-            rng.gen_range(min..max),
-            rng.gen_range(min..max),
-            rng.gen_range(min..max),
+            random_double(range.clone()),
+            random_double(range.clone()),
+            random_double(range),
         )
     }
 
     pub fn random_in_unit_sphere() -> Vec3 {
         loop {
-            let p = Vec3::random(-1.0, 1.0);
+            let p = Vec3::random(-1.0..1.0);
             if p.length_squared() >= 1.0 {
                 continue;
             }
@@ -112,6 +111,11 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
             u.e[0] * v.e[1] - u.e[1] * v.e[0],
         ],
     }
+}
+
+pub fn random_double(range: Range<f64>) -> f64 {
+    let mut rng = rand::thread_rng();
+    rng.gen_range(range)
 }
 
 impl Add for Vec3 {
