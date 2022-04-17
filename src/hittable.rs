@@ -45,10 +45,6 @@ pub struct HittableList {
 }
 
 impl HittableList {
-    pub fn clear(&mut self) {
-        self.objects.clear();
-    }
-
     pub fn add(&mut self, object: Rc<dyn Hittable>) {
         self.objects.push(object);
     }
