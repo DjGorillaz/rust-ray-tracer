@@ -4,5 +4,5 @@ Implementing [Ray Tracing in One Weekend](https://raytracing.github.io/books/Ray
 
 - [x] Multithreading
 
-# Final render
+# Current scene
 ![](image.png)
