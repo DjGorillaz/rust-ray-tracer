@@ -1,17 +1,18 @@
+use std::sync::Arc;
+
 use super::hittable::*;
 use super::material::*;
 use super::ray::*;
 use super::vec3::*;
-use std::rc::Rc;
 
 pub struct Sphere {
     center: Point3,
     radius: f64,
-    material: Rc<dyn Material>,
+    material: Arc<dyn Material + Send + Sync>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Sphere {
+    pub fn new(center: Point3, radius: f64, material: Arc<dyn Material + Send + Sync>) -> Sphere {
         Sphere {
             center,
             radius,

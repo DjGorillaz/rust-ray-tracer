@@ -1,13 +1,14 @@
+use std::sync::Arc;
+
 use super::material::*;
 use super::vec3::*;
 use super::Ray;
-use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
     pub t: f64,
     pub front_face: bool,
 }
@@ -17,7 +18,7 @@ impl HitRecord {
         HitRecord {
             p: Point3::default(),
             normal: Vec3::default(),
-            material: Rc::new(Lambertian {
+            material: Arc::new(Lambertian {
                 albedo: Color::default(),
             }),
             t: 0.0,
@@ -41,11 +42,11 @@ pub trait Hittable {
 
 #[derive(Default)]
 pub struct HittableList {
-    pub objects: Vec<Rc<dyn Hittable>>,
+    pub objects: Vec<Arc<dyn Hittable + Send + Sync >>,
 }
 
 impl HittableList {
-    pub fn add(&mut self, object: Rc<dyn Hittable>) {
+    pub fn add(&mut self, object: Arc<dyn Hittable + Send + Sync>) {
         self.objects.push(object);
     }
 }

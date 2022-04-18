@@ -6,7 +6,10 @@ mod sphere;
 mod vec3;
 
 use image::ImageBuffer;
-use std::{f64::INFINITY, rc::Rc};
+use std::{
+    f64::INFINITY,
+    sync::{Arc, Mutex},
+};
 
 use camera::*;
 use hittable::*;
@@ -65,8 +68,8 @@ fn create_pixel(pixel_color: &Color, samples_per_pixel: usize) -> image::Rgb<u8>
 pub fn random_scene() -> HittableList {
     let mut world = HittableList::default();
 
-    let ground_material = Rc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
-    world.add(Rc::new(Sphere::new(
+    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    world.add(Arc::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         ground_material,
@@ -85,37 +88,37 @@ pub fn random_scene() -> HittableList {
                 if choose_mat < 0.8 {
                     // diffuse
                     let albedo = Color::random(0.0..1.0) * Color::random(0.0..1.0);
-                    let sphere_material = Rc::new(Lambertian::new(albedo));
-                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
+                    let sphere_material = Arc::new(Lambertian::new(albedo));
+                    world.add(Arc::new(Sphere::new(center, 0.2, sphere_material)));
                 } else if choose_mat < 0.95 {
                     let albedo = Color::random(0.5..1.0);
                     let fuzz = random_double(0.0..0.5);
-                    let sphere_material = Rc::new(Metal::new(albedo, fuzz));
-                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
+                    let sphere_material = Arc::new(Metal::new(albedo, fuzz));
+                    world.add(Arc::new(Sphere::new(center, 0.2, sphere_material)));
                 } else {
-                    let sphere_material = Rc::new(Dielectric::new(1.5));
-                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
+                    let sphere_material = Arc::new(Dielectric::new(1.5));
+                    world.add(Arc::new(Sphere::new(center, 0.2, sphere_material)));
                 }
             }
         }
     }
 
-    let material1 = Rc::new(Dielectric::new(1.5));
-    world.add(Rc::new(Sphere::new(
+    let material1 = Arc::new(Dielectric::new(1.5));
+    world.add(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         material1,
     )));
 
-    let material2 = Rc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
-    world.add(Rc::new(Sphere::new(
+    let material2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    world.add(Arc::new(Sphere::new(
         Point3::new(-4.0, 1.0, 0.0),
         1.0,
         material2,
     )));
 
-    let material3 = Rc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
-    world.add(Rc::new(Sphere::new(
+    let material3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
+    world.add(Arc::new(Sphere::new(
         Point3::new(4.0, 1.0, 0.0),
         1.0,
         material3,
@@ -133,7 +136,7 @@ fn main() {
     let max_depth = 50;
 
     // World
-    let world = random_scene();
+    let world = Arc::new(random_scene());
 
     // Camera
     let lookfrom = Point3::new(13.0, 2.0, 3.0);
@@ -141,7 +144,7 @@ fn main() {
     let dist_to_focus = 10.0;
     let aperture = 0.1;
 
-    let cam = Camera::new(
+    let cam = Arc::new(Camera::new(
         lookfrom,
         lookat,
         Vec3::new(0.0, 1.0, 0.0),
@@ -149,28 +152,51 @@ fn main() {
         aspect_ratio,
         aperture,
         dist_to_focus,
-    );
+    ));
 
     // Render
-    let mut img = ImageBuffer::new(image_width, image_height);
+    let img = Arc::new(Mutex::new(ImageBuffer::new(image_width, image_height)));
 
-    for j in 0..image_height {
-        for i in 0..image_width {
-            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-            for _s in 0..samples_per_pixel {
-                let u = (i as f64 + random_double(0.0..1.0)) / (image_width - 1) as f64;
-                let v = (image_height as f64 - j as f64 + random_double(0.0..1.0)) as f64
-                    / (image_height - 1) as f64;
-                let r = cam.get_ray(u, v);
+    let threads = num_cpus::get();
+    let rows_per_band = image_height as usize / threads + 1;
+    {
+        let rows: Vec<_> = (0..image_height).collect();
+        let bands: Vec<_> = rows.chunks(rows_per_band as usize).collect();
 
-                pixel_color += ray_color(&r, &world, max_depth);
+        crossbeam::scope(|spawner| {
+            for band_chunks in bands.into_iter() {
+                let cam = cam.clone();
+                let world = world.clone();
+                let img = img.clone();
+
+                spawner.spawn(move |_| {
+                    for j in band_chunks {
+                        for i in 0..image_width {
+                            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+                            for _s in 0..samples_per_pixel {
+                                let u =
+                                    (i as f64 + random_double(0.0..1.0)) / (image_width - 1) as f64;
+                                let v = (image_height as f64 - *j as f64 + random_double(0.0..1.0))
+                                    as f64
+                                    / (image_height - 1) as f64;
+                                let r = cam.get_ray(u, v);
+
+                                pixel_color += ray_color(&r, &(*world), max_depth);
+                            }
+                            let pixel = create_pixel(&pixel_color, samples_per_pixel);
+                            img.lock().unwrap().put_pixel(i, *j, pixel);
+                        }
+                    }
+                });
             }
-            let pixel = create_pixel(&pixel_color, samples_per_pixel);
-            img.put_pixel(i, j, pixel);
-        }
+        })
+        .expect("failed to spawn threads");
     }
 
-    img.save("image.png").expect("failed to save image!");
+    img.lock()
+        .unwrap()
+        .save("image.png")
+        .expect("failed to save image!");
 
     println!("Done!");
 }
