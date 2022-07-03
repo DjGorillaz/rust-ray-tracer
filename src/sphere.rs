@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use super::hittable::*;
-use super::material::*;
-use super::ray::*;
-use super::vec3::*;
+use crate::hittable::*;
+use crate::material::*;
+use crate::ray::*;
+use crate::vec3::*;
 
 pub struct Sphere {
     center: Point3,

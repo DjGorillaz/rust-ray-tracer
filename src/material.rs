@@ -1,8 +1,8 @@
 use rand::Rng;
 
-use super::hittable::*;
-use super::ray::*;
-use super::vec3::*;
+use crate::hittable::*;
+use crate::ray::*;
+use crate::vec3::*;
 pub trait Material {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)>;
 }

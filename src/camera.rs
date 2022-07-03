@@ -1,5 +1,5 @@
-use super::ray::*;
-use super::vec3::*;
+use crate::ray::Ray;
+use crate::vec3::*;
 
 pub struct Camera {
     origin: Point3,
