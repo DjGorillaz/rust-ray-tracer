@@ -27,32 +27,37 @@ impl Ray {
     }
 }
 
-#[test]
-fn origin_test() {
-    let orig = Point3::new(1.0, 2.0, 3.0);
-    let dir = Vec3::new(4.0, 5.0, 6.0);
-    let r = Ray::new(orig, dir);
-    assert_eq!(r.origin(), orig);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn dir_test() {
-    let orig = Point3::new(1.0, 2.0, 3.0);
-    let dir = Vec3::new(4.0, 5.0, 6.0);
-    let r = Ray::new(orig, dir);
-    assert_eq!(r.direction(), dir);
-}
+    #[test]
+    fn origin_test() {
+        let orig = Point3::new(1.0, 2.0, 3.0);
+        let dir = Vec3::new(4.0, 5.0, 6.0);
+        let r = Ray::new(orig, dir);
+        assert_eq!(r.origin(), orig);
+    }
 
-#[test]
-fn at_test() {
-    let orig = Point3::new(1.0, 2.0, 3.0);
-    let dir = Vec3::new(4.0, 5.0, 6.0);
-    let t = 2.0;
-    let r = Ray::new(orig, dir);
-    assert_eq!(
-        r.at(t),
-        Point3 {
-            e: [9.0, 12.0, 15.0]
-        }
-    );
+    #[test]
+    fn dir_test() {
+        let orig = Point3::new(1.0, 2.0, 3.0);
+        let dir = Vec3::new(4.0, 5.0, 6.0);
+        let r = Ray::new(orig, dir);
+        assert_eq!(r.direction(), dir);
+    }
+
+    #[test]
+    fn at_test() {
+        let orig = Point3::new(1.0, 2.0, 3.0);
+        let dir = Vec3::new(4.0, 5.0, 6.0);
+        let t = 2.0;
+        let r = Ray::new(orig, dir);
+        assert_eq!(
+            r.at(t),
+            Point3 {
+                e: [9.0, 12.0, 15.0]
+            }
+        );
+    }
 }

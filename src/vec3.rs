@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Div, Mul, Sub, Range};
+use std::ops::{Add, AddAssign, Div, Mul, Range, Sub};
 
 use rand::Rng;
 
@@ -182,105 +182,110 @@ impl AddAssign for Vec3 {
     }
 }
 
-#[test]
-fn x_test() {
-    let v = Vec3::new(-1.11, 0.0, 0.0);
-    assert_eq!(v.x(), -1.11);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn y_test() {
-    let v = Vec3::new(0.0, 99.9, 0.0);
-    assert_eq!(v.y(), 99.9);
-}
+    #[test]
+    fn x_test() {
+        let v = Vec3::new(-1.11, 0.0, 0.0);
+        assert_eq!(v.x(), -1.11);
+    }
 
-#[test]
-fn z_test() {
-    let v = Vec3::new(0.0, 0.0, 0.0001);
-    assert_eq!(v.z(), 0.0001);
-}
+    #[test]
+    fn y_test() {
+        let v = Vec3::new(0.0, 99.9, 0.0);
+        assert_eq!(v.y(), 99.9);
+    }
 
-#[test]
-fn length_test() {
-    let v = Vec3::new(0.0, 3.0, 4.0);
-    assert_eq!(v.length(), 5.0);
-}
+    #[test]
+    fn z_test() {
+        let v = Vec3::new(0.0, 0.0, 0.0001);
+        assert_eq!(v.z(), 0.0001);
+    }
 
-#[test]
-fn length_squared_test() {
-    let v = Vec3::new(0.0, 3.0, 4.0);
-    assert_eq!(v.length_squared(), 25.0);
-}
+    #[test]
+    fn length_test() {
+        let v = Vec3::new(0.0, 3.0, 4.0);
+        assert_eq!(v.length(), 5.0);
+    }
 
-#[test]
-fn add_test() {
-    let lhs = Vec3::new(1.0, -1.0, 0.0001);
-    let rhs = Vec3::new(2.0, 1.0, 0.0001);
-    assert_eq!(lhs + rhs, Vec3::new(3.0, 0.0, 0.0002));
-}
+    #[test]
+    fn length_squared_test() {
+        let v = Vec3::new(0.0, 3.0, 4.0);
+        assert_eq!(v.length_squared(), 25.0);
+    }
 
-#[test]
-fn sub_test() {
-    let lhs = Vec3::new(1.0, -1.0, 0.0001);
-    let rhs = Vec3::new(2.0, 1.0, 0.0001);
-    assert_eq!(lhs - rhs, Vec3::new(-1.0, -2.0, 0.0));
-}
+    #[test]
+    fn add_test() {
+        let lhs = Vec3::new(1.0, -1.0, 0.0001);
+        let rhs = Vec3::new(2.0, 1.0, 0.0001);
+        assert_eq!(lhs + rhs, Vec3::new(3.0, 0.0, 0.0002));
+    }
 
-#[test]
-fn mul_test() {
-    let v = Vec3::new(1.0, -1.0, 0.0001);
-    let f = 10_f64;
-    assert_eq!(v * f, Vec3::new(10.0, -10.0, 0.001));
-}
+    #[test]
+    fn sub_test() {
+        let lhs = Vec3::new(1.0, -1.0, 0.0001);
+        let rhs = Vec3::new(2.0, 1.0, 0.0001);
+        assert_eq!(lhs - rhs, Vec3::new(-1.0, -2.0, 0.0));
+    }
 
-#[test]
-fn mul_vector_test() {
-    let v = Vec3::new(1.0, -1.0, 0.1);
-    let u = Vec3::new(2.0, 3.0, -1.0);
-    assert_eq!(v * u, Vec3::new(2.0, -3.0, -0.1));
-}
+    #[test]
+    fn mul_test() {
+        let v = Vec3::new(1.0, -1.0, 0.0001);
+        let f = 10_f64;
+        assert_eq!(v * f, Vec3::new(10.0, -10.0, 0.001));
+    }
 
-#[test]
-fn mul_test_reverse() {
-    let v = Vec3::new(1.0, -1.0, 0.0001);
-    let f = 10_f64;
-    assert_eq!(f * v, Vec3::new(10.0, -10.0, 0.001));
-}
+    #[test]
+    fn mul_vector_test() {
+        let v = Vec3::new(1.0, -1.0, 0.1);
+        let u = Vec3::new(2.0, 3.0, -1.0);
+        assert_eq!(v * u, Vec3::new(2.0, -3.0, -0.1));
+    }
 
-#[test]
-fn div_test() {
-    let v = Vec3::new(1.0, -1.0, 0.0001);
-    let f = 10_f64;
-    assert_eq!(v / f, Vec3::new(0.1, -0.1, 0.00001));
-}
+    #[test]
+    fn mul_test_reverse() {
+        let v = Vec3::new(1.0, -1.0, 0.0001);
+        let f = 10_f64;
+        assert_eq!(f * v, Vec3::new(10.0, -10.0, 0.001));
+    }
 
-#[test]
-fn unit_vector_test() {
-    let v = Vec3::new(3.0, 4.0, 0.0);
-    assert_eq!(unit_vector(v), Vec3::new(0.6, 0.8, 0.0));
-}
+    #[test]
+    fn div_test() {
+        let v = Vec3::new(1.0, -1.0, 0.0001);
+        let f = 10_f64;
+        assert_eq!(v / f, Vec3::new(0.1, -0.1, 0.00001));
+    }
 
-#[test]
-fn dot_test() {
-    let u = Vec3::new(1.0, 1.0, 1.0);
-    let v = Vec3::new(2.0, 2.0, 2.0);
-    assert_eq!(dot(&u, &v), 6.0);
-}
+    #[test]
+    fn unit_vector_test() {
+        let v = Vec3::new(3.0, 4.0, 0.0);
+        assert_eq!(unit_vector(v), Vec3::new(0.6, 0.8, 0.0));
+    }
 
-#[test]
-fn add_assign_test() {
-    let mut u = Vec3::new(1.0, 1.0, 1.0);
-    let v = Vec3::new(2.0, 2.0, 2.0);
+    #[test]
+    fn dot_test() {
+        let u = Vec3::new(1.0, 1.0, 1.0);
+        let v = Vec3::new(2.0, 2.0, 2.0);
+        assert_eq!(dot(&u, &v), 6.0);
+    }
 
-    u += v;
-    assert_eq!(u, Vec3::new(3.0, 3.0, 3.0));
-}
+    #[test]
+    fn add_assign_test() {
+        let mut u = Vec3::new(1.0, 1.0, 1.0);
+        let v = Vec3::new(2.0, 2.0, 2.0);
 
-#[test]
-fn near_zero_test() {
-    let v1 = Vec3::new(1e-9, 1e-9, 1e-9);
-    let v2 = Vec3::new(1e-7, 1e-7, 1e-7);
+        u += v;
+        assert_eq!(u, Vec3::new(3.0, 3.0, 3.0));
+    }
 
-    assert_eq!(v1.near_zero(), true);
-    assert_eq!(v2.near_zero(), false);
+    #[test]
+    fn near_zero_test() {
+        let v1 = Vec3::new(1e-9, 1e-9, 1e-9);
+        let v2 = Vec3::new(1e-7, 1e-7, 1e-7);
+
+        assert_eq!(v1.near_zero(), true);
+        assert_eq!(v2.near_zero(), false);
+    }
 }
